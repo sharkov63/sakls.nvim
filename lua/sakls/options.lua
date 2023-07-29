@@ -1,4 +1,4 @@
----sakls options and their validation.
+---User options of sakls.nvim options and their validation.
 
 local M = {}
 
@@ -6,41 +6,41 @@ local log = require 'sakls.support.log'
 
 ---@class Options
 ---
----Validated user options of sakls plugin.
+---Validated user options of sakls.nvim.
 ---
----@field layout_api LayoutAPIOptions
+---@field sakls_lib SAKLSLibOptions
 
----@class LayoutAPIOptions
+---@class SAKLSLibOptions
 ---
----Specifies chosen implementation of Layout API.
+---Settings for SAKLS library.
 ---
----@field impl? string Defines which implementation of Layout API to use.
----@field libpath? string For implementations which depend on an external
----library: provide an optional path to that library.
+---@field path? string An optional path to the SAKLS library.
+---If nil (default), then sakls.nvim will look for
+---the system-installed SAKLS library.
 
----Default options table.
+---Default user options.
 ---
----User options fall back to the default in case
+---Provided options will fall back to the default in case
 --- * when an option is not provided;
---- * when an option is invalid (with issuing a warning).
+--- * when an option is invalid (a warning will be issued in this case).
 ---
 ---@type Options
 local default_options = {
-  layout_api = {
-    impl = nil,
-    libpath = nil,
+  sakls_lib = {
+    path = nil,
   },
 }
 
----Ensure that a non-nil field has a specified type
----(if not, make it nil).
+---Ensure that a non-nil field of a table has a specified type
+---(if not, make it nil and issue a warning).
 ---
 ---@param parent table Table which has a non-nil field `field`.
 ---@param field string Field to validate.
 ---@param ty string Expected type.
 ---@param prefix string Prefix of the field to be printed in a warning.
+---
+---@return boolean valid True iff the field has the required type.
 local function validate_type(parent, field, ty, prefix)
-  prefix = prefix or ''
   if type(parent[field]) ~= ty then
     log.warn(
       '%s%s option: expected type %s, got %s; '
@@ -51,94 +51,49 @@ local function validate_type(parent, field, ty, prefix)
       type(parent[field])
     )
     parent[field] = nil
+    return false
   end
+  return true
 end
 
----Validate "layout_api.impl" option.
+---Validate a "subtable" of options.
 ---
----@param layout_api table layout_api option table being validated;
----it has non-nil `impl` field.
-local function validate_layout_api_impl(layout_api)
-  validate_type(layout_api, 'impl', 'string', 'layout_api.')
-  if not layout_api.impl then
-    return
-  end
-  local valid_values = {
-    ['iminsert'] = true,
-    ['xkb-switch'] = true,
-  }
-  if not valid_values[layout_api.impl] then
-    log.warn(
-      "layout_api.impl has unsupported value '%s'; "
-        .. "falling back to its' default value nil",
-      layout_api.impl
-    )
-    layout_api.impl = nil
-  end
-end
-
----Validate "layout_api" option.
----
----@param opts table Options table being validated;
----it has non-nil `layout_api` field.
-local function validate_layout_api(opts)
-  if type(opts.layout_api) ~= 'table' then
-    log.warn(
-      'layout_api option is not a table: '
-        .. "falling back to its' default value"
-    )
-    opts.layout_api = nil
-    return
-  end
-  local layout_api = opts.layout_api
-  local validator_map = {
-    impl = validate_layout_api_impl,
-    libpath = function(parent)
-      validate_type(parent, 'libpath', 'string', 'layout_api.')
-    end,
-  }
-  for option, _ in pairs(layout_api) do
-    local validator = validator_map[option]
-    if validator then
-      validator(layout_api)
-    else
-      log.warn('Unknown option "layout_api.%s"', option)
-      layout_api[option] = nil
+---@param user table User options subtable.
+---@param default table Corresponding default options subtable.
+---@param prefix string Prefix of the subtable to be printed in a warning.
+local function validate_recursive(user, default, prefix)
+  for option, user_value in pairs(user) do
+    local default_value = default[option]
+    if not default_value then
+      log.warn('Unknown option %s%s', prefix, option)
+      user[option] = nil
+    elseif
+      validate_type(user, option, type(default_value), prefix)
+      and type(default_value) == 'table'
+    then
+      validate_recursive(user_value, default_value, prefix .. '.' .. option)
     end
   end
-  if layout_api.libpath and not layout_api.impl then
-    log.warn(
-      'layout_api.libpath specified without layout_api.impl: discarding it'
-    )
-    layout_api.libpath = nil
-  end
-  setmetatable(layout_api, { __index = default_options.layout_api })
+  setmetatable(user, { __index = default })
 end
 
----Validate user-provided options.
+---Validate, modifying when necessary, provided options.
 ---
----@param opts any Raw options provided by the user. In case if it's a table,
+---@param user any Raw options provided by the user. In case if it's a table,
 ---it may be modified in-place.
 ---@return Options # Validated options table.
-function M.validate(opts)
-  if type(opts) ~= 'table' then
+function M.validate(user)
+  if type(user) ~= 'table' then
     log.warn 'User options is not a table; falling back to default options'
     return default_options
   end
-  local validator_map = {
-    layout_api = validate_layout_api,
-  }
-  for option, _ in pairs(opts) do
-    local validator = validator_map[option]
-    if validator then
-      validator(opts)
-    else
-      log.warn('Unknown option "%s"', option)
-      opts[option] = nil
-    end
-  end
-  setmetatable(opts, { __index = default_options })
-  return opts
+  validate_recursive(user, default_options, '')
+  return user
+end
+
+---@param options Options
+function M.set_current_options(options)
+  setmetatable(M, { __index = options })
 end
 
 return M

@@ -6,6 +6,7 @@ local M = {}
 
 local options = require 'sakls.options'
 local log = require 'sakls.support.log'
+local capi = require 'sakls.capi'
 
 ---Initialize sakls.nvim plugin:
 --- * Load SAKLS shared library into memory.
@@ -15,9 +16,12 @@ local log = require 'sakls.support.log'
 ---@param user_options any Raw, unprocessed user options for sakls.nvim.
 function M.init(user_options)
   options.set_current_options(options.validate(user_options))
+  capi.set_current(capi.load())
 
   log.info 'Hello World! Options:'
   log.info(vim.inspect(options))
+  log.info 'capi:'
+  log.info(vim.inspect(capi))
 end
 
 return M

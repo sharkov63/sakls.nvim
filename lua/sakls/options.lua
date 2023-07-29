@@ -14,9 +14,10 @@ local log = require 'sakls.support.log'
 ---
 ---Settings for SAKLS library.
 ---
----@field path? string An optional path to the SAKLS library.
----If nil (default), then sakls.nvim will look for
----the system-installed SAKLS library.
+---@field path string Path or name of SAKLS library.
+---If a path is provided, the library will be taken at that path.
+---If a name is provided, sakls.nvim will look for a system-installed
+---SAKLS library.
 
 ---Default user options.
 ---
@@ -27,7 +28,7 @@ local log = require 'sakls.support.log'
 ---@type Options
 local default_options = {
   sakls_lib = {
-    path = nil,
+    path = 'SAKLS',
   },
 }
 
@@ -71,7 +72,7 @@ local function validate_recursive(user, default, prefix)
       validate_type(user, option, type(default_value), prefix)
       and type(default_value) == 'table'
     then
-      validate_recursive(user_value, default_value, prefix .. '.' .. option)
+      validate_recursive(user_value, default_value, prefix .. option .. '.')
     end
   end
   setmetatable(user, { __index = default })
@@ -91,6 +92,8 @@ function M.validate(user)
   return user
 end
 
+---Set current global options.
+---
 ---@param options Options
 function M.set_current_options(options)
   setmetatable(M, { __index = options })

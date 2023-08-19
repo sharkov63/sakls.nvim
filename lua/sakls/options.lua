@@ -1,4 +1,4 @@
----User options of sakls.nvim options and their validation.
+---User options of sakls.nvim and their validation.
 
 local M = {}
 
@@ -9,12 +9,15 @@ local log = require 'sakls.support.log'
 ---Validated user options of sakls.nvim.
 ---
 ---@field sakls_lib SAKLSLibOptions
+---@field layout_backend string Name of the SAKLS layout backend to use.
+---Currently supported values are:
+---  * 'xkb-switch' for xkb-switch layout backend.
 
 ---@class SAKLSLibOptions
 ---
 ---Settings for SAKLS library.
 ---
----@field path string Path or name of SAKLS library.
+---@field path string Name, or path of SAKLS library.
 ---If a path is provided, the library will be taken at that path.
 ---If a name is provided, sakls.nvim will look for a system-installed
 ---SAKLS library.
@@ -30,6 +33,7 @@ local default_options = {
   sakls_lib = {
     path = 'SAKLS',
   },
+  layout_backend = '<INVALID>',
 }
 
 ---Ensure that a non-nil field of a table has a specified type

@@ -10,7 +10,7 @@ local options = require 'sakls.options'
 ---
 ---Lua table representing SAKLS layout backend.
 ---
----@field handle any A FFI cdata - a raw pointer to ILayoutBackend.
+---@field handle any A FFI cdata - a raw pointer to sakls::ILayoutBackend.
 ---@field delete function Callback, which deletes this layout backend.
 ---Does not accept arguments or return anything.
 

@@ -4,9 +4,10 @@
 
 local M = {}
 
-local options = require 'sakls.options'
-local capi = require 'sakls.capi'
-local layout_backend = require 'sakls.layout_backend'
+local m_options = require 'sakls.options'
+local m_capi = require 'sakls.capi'
+local m_layout_backend = require 'sakls.layout_backend'
+local m_engine = require 'sakls.engine'
 
 ---Initialize sakls.nvim plugin:
 --- * Load SAKLS shared library into memory.
@@ -15,13 +16,15 @@ local layout_backend = require 'sakls.layout_backend'
 ---
 ---@param user_options any Raw, unprocessed user options for sakls.nvim.
 function M.init(user_options)
-  options.set_current_options(options.validate(user_options))
+  m_options.set_current_options(m_options.validate(user_options))
 
-  capi.declare()
-  capi.set_current(capi.load())
+  m_capi.declare()
+  m_capi.set_current(m_capi.load())
 
-  layout_backend.set_current(layout_backend.create())
-  layout_backend.set_up_deletion()
+  m_layout_backend.set_current(m_layout_backend.create())
+  m_layout_backend.set_up_deletion()
+
+  m_engine.init()
 end
 
 return M

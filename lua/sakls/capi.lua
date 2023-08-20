@@ -9,6 +9,9 @@ local options = require 'sakls.options'
 ---Declare SAKLS C API functions in LuaJIT FFI.
 function M.declare()
   ffi.cdef [[
+void *sakls_Engine_createWithDefaultSchema(void *layoutBackend);
+void sakls_Engine_delete(void *engine);
+
 int sakls_XkbSwitch_createLayoutBackend(void **layoutBackend);
 void sakls_XkbSwitch_deleteLayoutBackend(void *layoutBackend);
 ]]

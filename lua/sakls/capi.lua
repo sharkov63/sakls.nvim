@@ -9,6 +9,15 @@ local options = require 'sakls.options'
 ---Declare SAKLS C API functions in LuaJIT FFI.
 function M.declare()
   ffi.cdef [[
+typedef uint64_t sakls_SyntaxNodeType;
+struct sakls_SyntaxNode {
+  sakls_SyntaxNodeType type;
+};
+struct sakls_SyntaxStackRef {
+  struct sakls_SyntaxNode *data;
+  size_t size;
+};
+
 void *sakls_Engine_createWithDefaultSchema(void *layoutBackend);
 void sakls_Engine_delete(void *engine);
 

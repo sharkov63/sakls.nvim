@@ -19,6 +19,10 @@ struct sakls_SyntaxStackRef {
 };
 
 void *sakls_Engine_createWithDefaultSchema(void *layoutBackend);
+int sakls_Engine_reset(void *engine);
+int sakls_Engine_setNewSyntaxStack(void *engine,
+                                   struct sakls_SyntaxStackRef synStack,
+                                   int force);
 void sakls_Engine_delete(void *engine);
 
 int sakls_XkbSwitch_createLayoutBackend(void **layoutBackend);

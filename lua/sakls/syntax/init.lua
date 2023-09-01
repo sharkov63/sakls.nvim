@@ -27,7 +27,7 @@ local ffi = require 'ffi'
 ---@return any # A FFI cdata: sakls_SyntaxStackRef.
 function M.convert_to_c_syntax_stack(syntax_stack)
   local size = #syntax_stack
-  local c_array = ffi.new('struct sakls_SyntaxNode', size)
+  local c_array = ffi.new('struct sakls_SyntaxNode[?]', size)
   for index = 1, size do
     c_array[index - 1].type = syntax_stack[index]
   end

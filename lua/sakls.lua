@@ -7,7 +7,6 @@ local M = {}
 local m_options = require 'sakls.options'
 local m_capi = require 'sakls.capi'
 local m_layout_backend = require 'sakls.layout_backend'
-local m_engine = require 'sakls.engine'
 
 ---Initialize sakls.nvim plugin:
 --- * Load SAKLS shared library into memory.
@@ -23,8 +22,6 @@ function M.init(user_options)
 
   m_layout_backend.set_current(m_layout_backend.create())
   m_layout_backend.set_up_deletion()
-
-  m_engine.init()
 end
 
 return M

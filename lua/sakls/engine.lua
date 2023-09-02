@@ -56,24 +56,24 @@ local function set_up_autocmds_new_syntax_stack(
   engine,
   capi
 )
-  local function set_new_syntax_stack()
+  local function set_new_syntax_stack(force)
     capi.sakls_Engine_setNewSyntaxStack(
       engine,
       m_syntax.convert_to_c_syntax_stack(syntax_provider.get_syntax_stack()),
-      true -- force
+      force
     )
   end
   vim.api.nvim_create_autocmd('InsertEnter', {
     buffer = bufnr,
     group = augroup,
-    callback = set_new_syntax_stack,
+    callback = function() set_new_syntax_stack(true) end,
   })
   vim.api.nvim_create_autocmd(
     { 'CursorMovedI', 'TextChangedI', 'InsertChange' },
     {
       buffer = bufnr,
       group = augroup,
-      callback = set_new_syntax_stack,
+      callback = function() set_new_syntax_stack(false) end,
     }
   )
   vim.api.nvim_create_autocmd('InsertLeavePre', {
@@ -90,18 +90,44 @@ local function set_up_autocmds_new_syntax_stack(
       if vim.fn.mode() ~= 's' then
         return
       end
-      set_new_syntax_stack()
+      set_new_syntax_stack(true)
     end,
   })
 end
 
+local function set_schema(engine, syntax_provider, schema, capi)
+  for string_type, default_layout in pairs(schema.memorized) do
+    capi.sakls_Engine_setMemorized(
+      engine,
+      syntax_provider.schema_translator(string_type),
+      default_layout
+    )
+  end
+  for string_type, layout in pairs(schema.forced) do
+    capi.sakls_Engine_setForced(
+      engine,
+      syntax_provider.schema_translator(string_type),
+      layout
+    )
+  end
+  for string_type in pairs(schema.ignored) do
+    capi.sakls_Engine_setIgnored(
+      engine,
+      syntax_provider.schema_translator(string_type)
+    )
+  end
+end
+
 ---@param bufnr integer Buffer ID (non-zero).
 ---@param syntax_provider SyntaxProvider
+---@param schema? Schema
 ---@param capi any SAKLS C API namespace in FFI.
 ---@param layout_backend any Layout backend handle.
-local function attach_impl(bufnr, syntax_provider, capi, layout_backend)
-  local engine =
-    capi.sakls_Engine_createWithDefaultSchema(layout_backend.handle)
+local function attach_impl(bufnr, syntax_provider, schema, capi, layout_backend)
+  local engine = capi.sakls_Engine_create(layout_backend.handle)
+  if schema then
+    set_schema(engine, syntax_provider, schema, capi)
+  end
   M.buf_to_engine[bufnr] = engine
   set_up_delete_autocmd(bufnr, capi)
   set_up_autocmds_new_syntax_stack(bufnr, syntax_provider, engine, capi)
@@ -114,7 +140,7 @@ end
 ---
 ---@param bufnr integer Buffer ID, or 0 for current buffer.
 ---@param syntax_provider SyntaxProvider Chosen syntax provider.
----@param schema? any SAKLS schema (TODO: add support for it).
+---@param schema? Schema SAKLS schema
 ---@param capi? any SAKLS C API namespace in FFI.
 ---If nil, it's taken from capi module.
 ---@param layout_backend? any Layout backend handle.
@@ -123,6 +149,7 @@ function M.attach_to_buf(bufnr, syntax_provider, schema, capi, layout_backend)
   attach_impl(
     get_actual_bufnr(bufnr),
     syntax_provider,
+    schema,
     capi or m_capi,
     layout_backend or m_layout_backend
   )

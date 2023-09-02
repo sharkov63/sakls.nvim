@@ -17,6 +17,10 @@ local ffi = require 'ffi'
 ---
 ---@field get_syntax_stack fun(): SyntaxStack
 ---Get currently observed syntax stack.
+---@field schema_translator? fun(string): integer
+---If exists, translates string syntax node types (seen in schema)
+---into integer syntax node types. This way the translation
+---is done on the sakls.nvim plugin side, not on the SAKLS engine side.
 
 ---Convert lua SyntaxStack into sakls_SyntaxStackRef
 ---from SAKLS C API as a FFI cdata.

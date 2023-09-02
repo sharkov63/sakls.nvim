@@ -29,6 +29,7 @@ end
 ---@type SyntaxProvider
 local M = {
   get_syntax_stack = get_syntax_stack,
+  schema_translator = vim.fn.hlID,
 }
 
 return M

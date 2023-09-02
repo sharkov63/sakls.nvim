@@ -18,7 +18,14 @@ struct sakls_SyntaxStackRef {
   size_t size;
 };
 
-void *sakls_Engine_createWithDefaultSchema(void *layoutBackend);
+typedef unsigned sakls_LayoutID;
+
+void *sakls_Engine_create(void *layoutBackend);
+void sakls_Engine_setMemorized(void *engine, sakls_SyntaxNodeType nodeType,
+                               sakls_LayoutID defaultLayout);
+void sakls_Engine_setForced(void *engine, sakls_SyntaxNodeType nodeType,
+                            sakls_LayoutID layout);
+void sakls_Engine_setIgnored(void *engine, sakls_SyntaxNodeType nodeType);
 int sakls_Engine_reset(void *engine);
 int sakls_Engine_setNewSyntaxStack(void *engine,
                                    struct sakls_SyntaxStackRef synStack,

@@ -76,7 +76,7 @@ end
 function M.set_up_deletion(layout_backend)
   layout_backend = layout_backend or M
   local augroup =
-    vim.api.nvim_create_augroup('SaklsNvim_LayoutBackendDelete', {})
+    vim.api.nvim_create_augroup('Sakls_LayoutBackendDelete', {})
   vim.api.nvim_create_autocmd('VimLeavePre', {
     group = augroup,
     callback = layout_backend.delete,

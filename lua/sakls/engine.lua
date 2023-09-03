@@ -7,7 +7,7 @@ local m_capi = require 'sakls.capi'
 local m_layout_backend = require 'sakls.layout_backend'
 local m_syntax = require 'sakls.syntax'
 
-local augroup = vim.api.nvim_create_augroup('SaklsNvim_Engine', {})
+local augroup = vim.api.nvim_create_augroup('Sakls_Engine', {})
 
 ---A global table which maps buffer numbers (non-zero) to
 ---SAKLS engine handles attached to them.
@@ -66,14 +66,18 @@ local function set_up_autocmds_new_syntax_stack(
   vim.api.nvim_create_autocmd('InsertEnter', {
     buffer = bufnr,
     group = augroup,
-    callback = function() set_new_syntax_stack(true) end,
+    callback = function()
+      set_new_syntax_stack(true)
+    end,
   })
   vim.api.nvim_create_autocmd(
     { 'CursorMovedI', 'TextChangedI', 'InsertChange' },
     {
       buffer = bufnr,
       group = augroup,
-      callback = function() set_new_syntax_stack(false) end,
+      callback = function()
+        set_new_syntax_stack(false)
+      end,
     }
   )
   vim.api.nvim_create_autocmd('InsertLeavePre', {
@@ -110,11 +114,13 @@ local function set_schema(engine, syntax_provider, schema, capi)
       layout
     )
   end
-  for string_type in pairs(schema.ignored) do
-    capi.sakls_Engine_setIgnored(
-      engine,
-      syntax_provider.schema_translator(string_type)
-    )
+  for string_type, value in pairs(schema.ignored) do
+    if value then
+      capi.sakls_Engine_setIgnored(
+        engine,
+        syntax_provider.schema_translator(string_type)
+      )
+    end
   end
 end
 

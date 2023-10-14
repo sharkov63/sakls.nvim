@@ -1,7 +1,7 @@
 # sakls.nvim
 Syntax-Aware Keyboard Layout Switching ([SAKLS](https://github.com/sharkov63/sakls)) plugin for [Neovim](https://neovim.io/)!
 
-![sakls nvim-tex-demo](https://github.com/sharkov63/sakls.nvim/assets/39223464/85014f6a-25c7-49e7-a95f-68122b44e5fa)
+![sakls nvim-tex-demo](https://github.com/sharkov63/sakls.nvim/assets/39223464/b77fcbf2-cd4c-4266-9edb-bd31657c4314)
 
 When editing a file containing text in multiple languages, there is always the burden of manually switching keyboard layout. A notable example (which was actually the motivation behind this project) is writing [TeX](https://en.wikipedia.org/wiki/TeX) documents in a non-English language. While the text has to be typed in that other language, the formulae (in math mode) still have to be entered in English!
 
